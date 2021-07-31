@@ -17,11 +17,11 @@ public class Session {
     private int nextPacketId;
     private AES aes;
 
-    protected Session(String id, String key){
+    protected Session(String id, String base64KeyStr){
         this.id = id;
         this.timestamp = System.currentTimeMillis();
         this.nextPacketId = 0;
-        this.key = key;
+        this.key = base64KeyStr;
     }
 
     public String getId() {

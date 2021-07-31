@@ -18,7 +18,7 @@ public class AES {
     private final Cipher decryptCipher;
 
     public AES(String keyBase64Str) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        this(Base64.getDecoder().decode(keyBase64Str));
+        this(Utils.debase64(keyBase64Str));
     }
 
     public AES(byte[] keyByte) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {

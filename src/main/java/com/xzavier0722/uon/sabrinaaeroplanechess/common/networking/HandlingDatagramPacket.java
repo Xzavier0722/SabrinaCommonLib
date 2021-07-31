@@ -26,7 +26,8 @@ public class HandlingDatagramPacket {
                 requireNotNull(packet.getSessionId()) + "," +
                 requireNotNull(packet.getRequest()) + "," +
                 requireNotNull(packet.getSequence()) + "," +
-                requireNotNull(packet.getTimestamp()) + ";";
+                requireNotNull(packet.getTimestamp()) + "," +
+                requireNotNull(packet.getSign()) + ";";
         byte[] header = headerStr.getBytes();
 
         int totalLen = 2 + header.length + rawData.length;
@@ -107,7 +108,7 @@ public class HandlingDatagramPacket {
 
         // Retrieve header
         String[] header = new String(dataBytes, 2, headerIndex-2).split(",");
-        if (header.length != 5) {
+        if (header.length != 6) {
             throw new IllegalStateException("Illegal header!");
         }
 
@@ -118,6 +119,7 @@ public class HandlingDatagramPacket {
         re.setRequest(Integer.parseInt(header[2]));
         re.setSequence(Integer.parseInt(header[3]));
         re.setTimestamp(Long.parseLong(header[4]));
+        re.setSign(header[5]);
         re.setData(new String(dataBytes, headerIndex+1, dataBytes.length));
 
         return (this.packet = re);

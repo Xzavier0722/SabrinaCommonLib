@@ -8,6 +8,7 @@ public class Packet {
     private int request;
     private int sequence;
     private long timestamp;
+    private String sign;
     private String data;
 
     public Packet() {
@@ -73,5 +74,13 @@ public class Packet {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
+    public String getSign() {
+        return sign;
     }
 }
