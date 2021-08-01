@@ -8,10 +8,20 @@ public enum Request {
     RESEND,
     RESPONSE,
     CONFIRM,
+    QUICK_MATCH,
+    GAME_ROOM,
+    GAME_PROCESS,
     ERROR;
 
     public boolean requireConfirm() {
-        return this == Request.RESPONSE;
+        switch (this) {
+            case RESPONSE:
+            case QUICK_MATCH:
+            case GAME_PROCESS:
+            case GAME_ROOM:
+                return true;
+        }
+        return false;
     }
 
 }
