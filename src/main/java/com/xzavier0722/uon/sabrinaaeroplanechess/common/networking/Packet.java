@@ -5,7 +5,7 @@ public class Packet {
     private final byte identifier;
     private int id;
     private String sessionId;
-    private int request;
+    private Request request;
     private int sequence;
     private long timestamp;
     private String sign;
@@ -19,7 +19,6 @@ public class Packet {
     public Packet(byte identifier) {
         this.identifier = identifier;
         this.id = -1;
-        this.request = -1;
         this.sequence = -1;
         this.timestamp = -1;
     }
@@ -44,11 +43,11 @@ public class Packet {
         this.sessionId = sessionId;
     }
 
-    public int getRequest() {
+    public Request getRequest() {
         return request;
     }
 
-    public void setRequest(int request) {
+    public void setRequest(Request request) {
         this.request = request;
     }
 

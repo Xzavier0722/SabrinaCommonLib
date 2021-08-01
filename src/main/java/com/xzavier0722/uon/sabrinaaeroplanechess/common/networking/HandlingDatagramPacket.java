@@ -24,7 +24,7 @@ public class HandlingDatagramPacket {
         String headerStr =
                 requireNotNull(packet.getId()) + "," +
                 requireNotNull(packet.getSessionId()) + "," +
-                requireNotNull(packet.getRequest()) + "," +
+                requireNotNull(packet.getRequest()).ordinal() + "," +
                 requireNotNull(packet.getSequence()) + "," +
                 requireNotNull(packet.getTimestamp()) + "," +
                 requireNotNull(packet.getSign()) + ";";
@@ -42,15 +42,23 @@ public class HandlingDatagramPacket {
 
         // Packet separate start
         int index = 0;
+        int count = 0;
         do {
-            int sliceLen = Math.min(totalLen - index, 1024);
-            byte[] dataSlice = new byte[sliceLen];
+            boolean isFirst = count > 0;
+            int sliceLen = Math.min(totalLen - index, isFirst ? 1024 : 1023);
+            byte[] dataSlice = new byte[isFirst ? sliceLen : sliceLen+1];
 
-            System.arraycopy(data, index, dataSlice, 0, sliceLen);
+            if (isFirst) {
+                dataSlice[0] = (byte) count;
+            }
+
+            System.arraycopy(data, index, dataSlice, isFirst ? 0 : 1, sliceLen);
 
             re.accept(dataSlice);
             index += sliceLen;
+            count++;
         } while (index < totalLen);
+        re.updateAmount();
         return re;
     }
 
@@ -74,8 +82,11 @@ public class HandlingDatagramPacket {
     }
 
     public void accept(byte[] data) {
-        this.data.add(data);
-        // Set total amount
+        byte seq = data[0];
+        this.data.set((seq == 0x48) ? 0 : seq, data);
+    }
+
+    private void updateAmount() {
         this.data.get(0)[1] = (byte) this.data.size();
     }
 
@@ -88,16 +99,21 @@ public class HandlingDatagramPacket {
         if (this.data.isEmpty() || (int)this.data.get(0)[1] != this.data.size()) {
             throw new IllegalStateException("Incomplete packet!");
         }
-        int len = 0;
+
+        // Get data length
+        int len = 1;
         for (byte[] slice : this.data) {
-            len += slice.length;
+            len += slice.length-1;
         }
 
         byte[] dataBytes = new byte[len];
         int index = 0;
-        for (byte[] slice : this.data) {
-            System.arraycopy(slice, 0, dataBytes, index, slice.length);
-            index += slice.length;
+        for (int i = 0; i < this.data.size(); i++) {
+            byte[] slice = this.data.get(i);
+            // Skip the sequence tag
+            int startLoc = Math.min(i, 1);
+            System.arraycopy(slice, startLoc, dataBytes, index, slice.length - startLoc);
+            index += slice.length - startLoc;
         }
 
         // Find header delimiter ";" (0x3b)
@@ -123,7 +139,7 @@ public class HandlingDatagramPacket {
         Packet re = new Packet(dataBytes[0]);
         re.setId(Integer.parseInt(header[0]));
         re.setSessionId(header[1]);
-        re.setRequest(Integer.parseInt(header[2]));
+        re.setRequest(Request.values()[Integer.parseInt(header[2])]);
         re.setSequence(Integer.parseInt(header[3]));
         re.setTimestamp(Long.parseLong(header[4]));
         re.setSign(header[5]);
@@ -137,7 +153,23 @@ public class HandlingDatagramPacket {
     }
 
     public int getTotalSliceCount() {
-        return this.data.isEmpty() ? -1 : (int)this.data.get(0)[1];
+        byte[] first = this.data.get(0);
+        return first == null ? -1 : first[1];
+    }
+
+    public List<Integer> getMissingSequence() {
+        List<Integer> re = new ArrayList<>();
+        int total = getTotalSliceCount();
+        if (total == -1) {
+            re.add(-1);
+        } else {
+            for (int i = 1; i < total; i++) {
+                if (this.data.get(i) == null) {
+                    re.add(i);
+                }
+            }
+        }
+        return re;
     }
 
     public boolean isCompleted() {
