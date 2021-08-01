@@ -12,7 +12,7 @@ public class HandlingDatagramPacket {
 
     public HandlingDatagramPacket(){}
 
-    public HandlingDatagramPacket(Packet packet) {
+    private HandlingDatagramPacket(Packet packet) {
         this.packet = packet;
     }
 

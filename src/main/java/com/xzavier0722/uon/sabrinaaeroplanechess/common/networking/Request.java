@@ -6,6 +6,11 @@ public enum Request {
     LOGIN,
     GET,
     RESEND,
-    RESPONSE
+    RESPONSE,
+    CONFIRM;
+
+    public boolean requireConfirm() {
+        return this == Request.RESPONSE;
+    }
 
 }
