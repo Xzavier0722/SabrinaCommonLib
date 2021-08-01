@@ -1,5 +1,6 @@
 package com.xzavier0722.uon.sabrinaaeroplanechess.common.networking;
 
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 
 public class InetPointInfo {
@@ -10,6 +11,10 @@ public class InetPointInfo {
     public InetPointInfo(InetAddress address, int port) {
         this.address = address;
         this.port = port;
+    }
+
+    public static InetPointInfo get(DatagramPacket packet) {
+        return new InetPointInfo(packet.getAddress(), packet.getPort());
     }
 
     public InetAddress getAddress() {
