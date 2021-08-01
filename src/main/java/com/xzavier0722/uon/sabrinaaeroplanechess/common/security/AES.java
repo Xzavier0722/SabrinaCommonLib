@@ -5,12 +5,10 @@ import com.xzavier0722.uon.sabrinaaeroplanechess.common.Utils;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 
 public class AES {
 
@@ -22,7 +20,6 @@ public class AES {
     }
 
     public AES(byte[] keyByte) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
-        KeyGenerator.getInstance("AES").init(256);
         SecretKeySpec key = new SecretKeySpec(keyByte, "AES");
 
         encryptCipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
