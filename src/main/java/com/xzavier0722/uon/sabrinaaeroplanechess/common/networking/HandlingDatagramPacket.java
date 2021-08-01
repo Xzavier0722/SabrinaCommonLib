@@ -2,12 +2,14 @@ package com.xzavier0722.uon.sabrinaaeroplanechess.common.networking;
 
 import java.net.DatagramPacket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class HandlingDatagramPacket {
 
-    private final List<byte[]> data = new ArrayList<>();
+    private final Map<Integer, byte[]> data = new HashMap<>();
     private Packet packet;
 
     public HandlingDatagramPacket(){}
@@ -83,7 +85,7 @@ public class HandlingDatagramPacket {
 
     public void accept(byte[] data) {
         byte seq = data[0];
-        this.data.set((seq == 0x48) ? 0 : seq, data);
+        this.data.put((seq == 0x48) ? 0 : (int)seq, data);
     }
 
     private void updateAmount() {
@@ -102,7 +104,7 @@ public class HandlingDatagramPacket {
 
         // Get data length
         int len = 1;
-        for (byte[] slice : this.data) {
+        for (byte[] slice : this.data.values()) {
             len += slice.length-1;
         }
 
