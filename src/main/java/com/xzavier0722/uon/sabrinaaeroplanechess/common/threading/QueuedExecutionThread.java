@@ -15,7 +15,10 @@ public class QueuedExecutionThread {
                 try {
                     QueuedTask task = queue.take();
                     task.execute();
-                    Thread.sleep(task.getDelay());
+                    int delay = task.getDelay();
+                    if (delay > 0) {
+                        Thread.sleep(delay);
+                    }
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }

@@ -1,19 +1,17 @@
 package com.xzavier0722.uon.sabrinaaeroplanechess.common.networking;
 
+import com.xzavier0722.uon.sabrinaaeroplanechess.common.threading.QueuedExecutionThread;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Consumer;
 
-public class SocketPoint {
+public class SocketPoint extends QueuedExecutionThread {
 
     private final DatagramSocket socket;
-    private final BlockingQueue<DatagramPacket> queue;
     private final Thread tListener;
-    private final Thread tHandler;
 
     public SocketPoint(Consumer<DatagramPacket> handler) throws SocketException {
         this(-1, handler);
@@ -21,7 +19,6 @@ public class SocketPoint {
 
     public SocketPoint(int port, Consumer<DatagramPacket> handler) throws SocketException {
         this.socket = port == -1 ? new DatagramSocket() : new DatagramSocket(port);
-        queue = new LinkedBlockingDeque<>();
 
         tListener = new Thread(() -> {
             while (true) {
@@ -31,8 +28,7 @@ public class SocketPoint {
 
                 try {
                     socket.receive(data);
-
-                    if (!queue.offer(data)) {
+                    if (!schedule(() -> handler.accept(data))) {
                         System.err.println("Cannot add the incoming packet into queue: "+data.getAddress());
                     }
                 } catch (IOException e) {
@@ -41,21 +37,18 @@ public class SocketPoint {
 
             }
         });
-
-        tHandler = new Thread(() -> {
-            while (true) {
-                try {
-                    handler.accept(queue.take());
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
-    public void stop() {
+    @Override
+    public void start() {
+        tListener.start();
+        super.start();
+    }
+
+    @Override
+    public void abort() {
         tListener.interrupt();
-        tHandler.interrupt();
+        super.abort();
     }
 
     public void send(InetPointInfo info, DatagramPacket packet) throws IOException {
