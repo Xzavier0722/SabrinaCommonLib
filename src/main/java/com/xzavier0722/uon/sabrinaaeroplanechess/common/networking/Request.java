@@ -7,7 +7,8 @@ public enum Request {
     GET,
     RESEND,
     RESPONSE,
-    CONFIRM;
+    CONFIRM,
+    ERROR;
 
     public boolean requireConfirm() {
         return this == Request.RESPONSE;
