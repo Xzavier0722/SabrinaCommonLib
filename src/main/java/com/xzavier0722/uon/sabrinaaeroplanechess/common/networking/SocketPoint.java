@@ -51,6 +51,10 @@ public class SocketPoint extends QueuedExecutionThread {
         super.abort();
     }
 
+    public void send(DatagramPacket packet) throws IOException {
+        socket.send(packet);
+    }
+
     public void send(InetPointInfo info, DatagramPacket packet) throws IOException {
         packet.setAddress(info.getAddress());
         packet.setPort(info.getPort());
