@@ -55,10 +55,17 @@ public class HandlingDatagramPacket {
     }
 
     private static <T> T requireNotNull(T obj) {
-        if (obj == null || (obj instanceof Integer && (int)obj < 0)) {
+        if (obj == null) {
             throw new IllegalArgumentException("Packet should not has null data.");
         }
         return obj;
+    }
+
+    private static Number requireNotNull(Number num) {
+        if (num.longValue() < 0) {
+            throw new IllegalArgumentException("Packet should not has null data.");
+        }
+        return num;
     }
 
     public Optional<DatagramPacket> getDatagramPacket(int slice, InetPointInfo receiverInfo) {
