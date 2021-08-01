@@ -46,11 +46,11 @@ public class HandlingDatagramPacket {
         int index = 0;
         int count = 0;
         do {
-            boolean isFirst = count > 0;
+            boolean isFirst = count == 0;
             int sliceLen = Math.min(totalLen - index, isFirst ? 1024 : 1023);
             byte[] dataSlice = new byte[isFirst ? sliceLen : sliceLen+1];
 
-            if (isFirst) {
+            if (!isFirst) {
                 dataSlice[0] = (byte) count;
             }
 
@@ -145,7 +145,7 @@ public class HandlingDatagramPacket {
         re.setSequence(Integer.parseInt(header[3]));
         re.setTimestamp(Long.parseLong(header[4]));
         re.setSign(header[5]);
-        re.setData(new String(dataBytes, headerIndex+1, dataBytes.length));
+        re.setData(new String(dataBytes, headerIndex+1, dataBytes.length-(headerIndex+1)));
 
         return (this.packet = re);
     }
