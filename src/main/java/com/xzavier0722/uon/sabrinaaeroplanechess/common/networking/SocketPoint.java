@@ -31,7 +31,12 @@ public class SocketPoint extends QueuedExecutionThread {
                     if (!schedule(() -> handler.accept(data))) {
                         System.err.println("Cannot add the incoming packet into queue: "+data.getAddress());
                     }
-                } catch (IOException e) {
+                } catch (SocketException e) {
+                    return;
+                } catch (Throwable e) {
+                    if (!schedule(() -> handler.accept(data))) {
+                        System.err.println("Exception thrown while adding the incoming packet into queue: "+data.getAddress());
+                    }
                     e.printStackTrace();
                 }
 
@@ -47,7 +52,7 @@ public class SocketPoint extends QueuedExecutionThread {
 
     @Override
     public void abort() {
-        tListener.interrupt();
+        socket.close();
         super.abort();
     }
 

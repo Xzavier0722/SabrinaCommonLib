@@ -16,6 +16,9 @@ public class QueuedExecutionThread {
                     QueuedTask task = queue.take();
                     task.execute();
                     int delay = task.getDelay();
+                    if (delay < 0) {
+                        return;
+                    }
                     if (delay > 0) {
                         Thread.sleep(delay);
                     }
@@ -39,7 +42,15 @@ public class QueuedExecutionThread {
     }
 
     public void abort() {
-        t.interrupt();
+        schedule(new QueuedTask() {
+            @Override
+            public void execute() {}
+
+            @Override
+            public int getDelay() {
+                return -1;
+            }
+        });
     }
 
 }
