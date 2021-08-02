@@ -145,7 +145,7 @@ public class HandlingDatagramPacket {
         re.setSequence(Integer.parseInt(header[3]));
         re.setTimestamp(Long.parseLong(header[4]));
         re.setSign(header[5]);
-        re.setData(new String(dataBytes, headerIndex+1, dataBytes.length-(headerIndex+1)));
+        re.setData(new String(dataBytes, headerIndex+1, dataBytes.length-(headerIndex+1)-(dataBytes.length-1-getUsedBytesIndex(dataBytes))));
 
         return (this.packet = re);
     }
@@ -176,6 +176,15 @@ public class HandlingDatagramPacket {
 
     public boolean isCompleted() {
         return getSliceCount() == getTotalSliceCount();
+    }
+
+    private int getUsedBytesIndex(byte[] data){
+        for (int i = data.length-1; i >= 0; i--) {
+            if (data[i] != 0) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 }
